@@ -54,14 +54,13 @@ config* recuperar_parametros(int counter, char** params){
         return ptr;
     }
 
-    ptr->is_Server = strcmp("-S", params[1]) == 0 ? true : false;
-
+    ptr->is_Server         = strcmp("-S", params[1]) == 0 ? true : false;
     ptr->socket.sin_family = AF_INET;
     ptr->socket.sin_port   = htons(33333);
 
     // Recuperar parâmetros opcionais -t e/ou [porta].
     if( counter > 2 ){
-        for( int i = 2; i < counter; i++ ){
+        for( int i = 2; i < counter - 1; i++ ){
 
             // Foi passado um argumento númerico.
             // Possivelmente é o número da porta.
