@@ -6,23 +6,20 @@
 #include <sys/socket.h>
 
 /*
- * Header que define os protótipo de funções e estruturas que serão utilizadas
+ * Header que define os protótipos de funções e estruturas que serão utilizadas
  * por todo o projeto.
  */
 
- // forward declaration
- struct sockaddr_in;
-
 /*
  * Trata-se de uma estrutura que engloba a estrutura do socket e também
- * algumas flags que serão utilizadas pelas rotinas runServer() e runClient().
+ * algumas flags.
  *
 */
  typedef struct {
 
      bool is_Server;             /* Flag que define se é servidor */
-     bool is_TCP;                /* Flag que define se o protócolo será TCP */
-     struct sockaddr_in socket;  /* Socket da conexão */
+     bool is_TCP;                /* Flag que define se o protocolo será TCP */
+     struct sockaddr_in socket;  /* Estrutura do socket da conexão */
 
  } config;
 
@@ -42,11 +39,17 @@
 /*
  * Rotina que faz o programa rodar como servidor.
  */
- void runServer(config*);
+ void runAsServer(config*);
 
 /*
  * Rotina que faz o programa rodar como cliente.
  */
- void runClient(config*);
+ void runAsClient(config*);
+
+/*
+ * Rotina que apenas printa na tela quais são as configurações que o programa
+ * irá rodar.
+ */
+ void print_config(config*);
 
 #endif

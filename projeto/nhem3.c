@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <arpa/inet.h>
 
 int main(int argc, char **argv){
@@ -12,37 +13,38 @@ int main(int argc, char **argv){
 
 void run(config *c){
     if(c == NULL){
-        printf("ERRO: Os parâmetros estão incorretos!\n"
-               "Para servidor use: -S [port][-t]\n"
-               "Para cliente use: host [port][-t]\n");
+        printf("ERRO: Não foi possível iniciar o programar!\n"
+               "Certifique-se que:\n"
+               "-> Para servidor use:\t -S [port][-t]\n"
+               "-> Para cliente use:\t host [port][-t]\n");
 
         return;
     }
 
-    // TODO: Avaliar se a criação do socket e o bind
+    // TODO: Avaliar se a criação do socket e o bind()
     // pode ser feito aqui e depois passado para as rotinas.
-    // Pois se trata de um código parecido entre os dois.
+    // Pois aparenta ser código parecido entre os dois.
 
+    print_config(c);
     if(c->is_Server){
-        runServer(c);
+        runAsServer(c);
     } else {
-        runClient(c);
+        runAsClient(c);
     }
 }
 
-void runServer(config* c){
+void runAsServer(config* c){
     // a ser implementado.
 }
 
-void runClient(config* c){
+void runAsClient(config* c){
     // a ser implementado.
 }
 
-// TODO: Nessa implementação tem que ser passado todos os parâmetros.
-// ajustar para que a porta e o -t sejam opcionais.
 config* recuperar_parametros(int counter, char** params){
 
-    if(counter != 4){
+    // Não foi passado o host ou -S.
+    if( counter < 2 ){
         return NULL;
     }
 
@@ -52,18 +54,38 @@ config* recuperar_parametros(int counter, char** params){
         return ptr;
     }
 
-    // TODO: Pensar em uma maneira de recuperar os parâmetros
-    // independente da ordem que eles aparecam.
     ptr->is_Server = strcmp("-S", params[1]) == 0 ? true : false;
-    // ptr->is_TCP    = strcmp("-t", params[3]) == 0 ? true : false;
 
-    // Apenas para testes. Deverá ser removido !!
-    ptr->is_TCP = true;
+    ptr->socket.sin_family = AF_INET;
+    ptr->socket.sin_port   = htons(33333);
 
-    ptr->socket.sin_family      = AF_INET;
-    ptr->socket.sin_port        = htons(33333);
-    ptr->socket.sin_addr.s_addr = INADDR_ANY;
-    // ==========================================
+    // Recuperar parâmetros opcionais -t e/ou [porta].
+    if( counter > 2 ){
+        for( int i = 2; i < counter; i++ ){
 
+            // Foi passado um argumento númerico.
+            // Possivelmente é o número da porta.
+            if(isdigit(params[i]) == 0){
+                ptr->socket.sin_port = htons(atoi(params[i]));
+            } else {
+                ptr->is_TCP = strcmp("-t", params[i]) == 0 ? true : false;
+            }
+
+        }
+    }
+
+    ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
+                                : inet_addr(params[2]); // FIXME: e se não for
+                                                        // um ip válido ?!
     return ptr;
+}
+
+void print_config(config *c){
+    printf("Inicializando programa como: %s\n"
+           "IP: %s, Porta: %d\n"
+           "Protocolo: %s\n\n",
+           c->is_Server ? "Servidor" : "Cliente",
+           inet_ntoa(c->socket.sin_addr),
+           ntohs(c->socket.sin_port),
+           c->is_TCP ? "TCP" : "UDP");
 }
