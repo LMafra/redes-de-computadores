@@ -11,12 +11,19 @@
  */
 
 /*
+ * ====== Constantes ======
+ */
+ #define MSG_SERVER_DEFAULT "A conexão foi feita com sucesso!\n"
+ #define BUFFER_SIZE        1024
+ #define QUEUE_SIZE         1
+
+/*
  * Trata-se de uma estrutura que engloba a estrutura do socket e também
  * algumas flags.
  *
 */
  typedef struct {
-
+     int  socketFD;              /* File descriptor do socket de conexão */
      bool is_Server;             /* Flag que define se é servidor */
      bool is_TCP;                /* Flag que define se o protocolo será TCP */
      struct sockaddr_in socket;  /* Estrutura do socket da conexão */
