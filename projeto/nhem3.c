@@ -73,9 +73,9 @@ void runAsClient(config* c){
     clientFD = connect(clientSock, (struct sockaddr *) &c->socket,  socketSize);
 
     printf("Olá, você está conectado \n");
-    
+
     read(clientSock, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
-    
+
     printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
 
 
@@ -84,10 +84,7 @@ void runAsClient(config* c){
 
 config* recuperar_parametros(int counter, char** params){
 
-    // Não foi passado o host ou -S.
-    if( counter < 2 ){
-        return NULL;
-    }
+    int portNumber;
 
     config *ptr = (config *) malloc(sizeof(config));
 
@@ -105,7 +102,14 @@ config* recuperar_parametros(int counter, char** params){
 
             // Foi passado um argumento númerico.
             // Possivelmente é o número da porta.
-            if(isdigit(atoi(params[i])) > 0){
+            if( (portNumber = atoi(params[i])) > 0 ){
+
+                if( portNumber < 1024 || portNumber > 65535 ){
+                    printf(ERR_PORT_RANGE);
+                    free(ptr);
+                    return NULL;
+                }
+
                 ptr->socket.sin_port = htons(atoi(params[i]));
             } else {
                 ptr->is_TCP = strcmp("-t", params[i]) == 0 ? true : false;

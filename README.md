@@ -1,4 +1,6 @@
-# Trabalho Final - Redes de Computadores
+![alt text](http://www.unb.br/images/Imagens/logo_unb.png)
+
+# Redes de Computadores - 1/2017
 
 ## Membros
 * Éden de Lucas Castelar Vale Medeiros
@@ -35,7 +37,7 @@ Refere-se ao modo servidor, escutando na porta *PORT*. Se não for especificado,
 ```c
    -host [port]
 ```
-*HOST* a ser conectado na porta *PORT*. Se não for especificado, usa-se a porta default *(33333)*.
+*HOST* a ser conectado na porta *PORT*.
 
 ```c
    -t
@@ -47,3 +49,4 @@ Usar o protocolo TCP. Se não estiver presente, usar o protocolo UDP (default).
 
 ## Limitações e Bugs
 
+* O servidor não utiliza multithreading. Portanto, só consegue receber requisições de um usuário por vez.
