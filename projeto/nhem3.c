@@ -59,7 +59,25 @@ void runAsServer(config* c){
 }
 
 void runAsClient(config* c){
-    // a ser implementado.
+    // TODO: Mudar para aceitar tanto TCP quanto UDP.
+    int clientFD, clientSock;
+    char mensagem[BUFFER_SIZE];
+    struct sockaddr_in server;
+    socklen_t socketSize = sizeof(server);
+
+    clientSock = c->socketFD;
+
+    clientSock = socket(AF_INET, SOCK_STREAM, 0);
+
+
+    clientFD = connect(clientSock, (struct sockaddr *) &server, &socketSize);
+
+    printf("Olá, você está conectado \n");
+    printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
+    
+    write(clientFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+
+    close(clientFD);
 }
 
 config* recuperar_parametros(int counter, char** params){

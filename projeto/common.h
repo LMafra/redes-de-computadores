@@ -14,6 +14,7 @@
  * ====== Constantes ======
  */
  #define MSG_SERVER_DEFAULT "A conexão foi feita com sucesso!\n"
+#define MSG_CLIENT_DEFAULT "Olá servidor!\n"
  #define BUFFER_SIZE        1024
  #define QUEUE_SIZE         1
 
