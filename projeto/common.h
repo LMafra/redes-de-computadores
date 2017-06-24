@@ -14,7 +14,9 @@
  * ====== Constantes ======
  */
  #define MSG_SERVER_DEFAULT "A conexão foi feita com sucesso!\n"
-#define MSG_CLIENT_DEFAULT "Olá servidor!\n"
+ #define MSG_CLIENT_DEFAULT "Olá servidor!\n"
+ #define ERR_PORT_RANGE     "ERRO: A porta deve ser maior que 1024 " \
+                            "e menor que 65535!\n"
  #define BUFFER_SIZE        1024
  #define QUEUE_SIZE         1
 

@@ -1,8 +1,12 @@
 # Trabalho Final - Redes de Computadores
 
+![alt text](http://www.unb.br/images/Imagens/logo_unb.png)
+
 ## Membros
 * Éden de Lucas Castelar Vale Medeiros
 * Lucas Mafra Chagas
+
+## Redes de Computadores - 1/2017
 
 ## Introdução
 
@@ -46,4 +50,3 @@ Usar o protocolo TCP. Se não estiver presente, usar o protocolo UDP (default).
 ## Decisões de Projeto e Soluções Utilizadas
 
 ## Limitações e Bugs
-
