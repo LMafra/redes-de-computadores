@@ -70,7 +70,7 @@ void runAsClient(config* c){
     clientSock = socket(AF_INET, SOCK_STREAM, 0);
 
 
-    clientFD = connect(clientSock, (struct sockaddr *) &c->socket,  &socketSize);
+    clientFD = connect(clientSock, (struct sockaddr *) &c->socket,  socketSize);
 
     printf("Olá, você está conectado \n");
     
