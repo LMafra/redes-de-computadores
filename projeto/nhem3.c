@@ -63,19 +63,21 @@ void runAsClient(config* c){
     int clientFD, clientSock;
     char mensagem[BUFFER_SIZE];
     struct sockaddr_in server;
-    socklen_t socketSize = sizeof(server);
+    socklen_t socketSize = sizeof(c->socket);
 
     clientSock = c->socketFD;
 
     clientSock = socket(AF_INET, SOCK_STREAM, 0);
 
 
-    clientFD = connect(clientSock, (struct sockaddr *) &server, &socketSize);
+    clientFD = connect(clientSock, (struct sockaddr *) &c->socket,  &socketSize);
 
     printf("Olá, você está conectado \n");
+    
+    read(clientSock, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+    
     printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
 
-    write(clientFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
 
     close(clientFD);
 }
