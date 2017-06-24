@@ -74,7 +74,7 @@ void runAsClient(config* c){
 
     printf("Olá, você está conectado \n");
     printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
-    
+
     write(clientFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
 
     close(clientFD);
@@ -113,7 +113,7 @@ config* recuperar_parametros(int counter, char** params){
     }
 
     ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
-                                : inet_addr(params[2]); // FIXME: e se não for
+                                : inet_addr(params[1]); // FIXME: e se não for
                                                         // um ip válido ?!
     return ptr;
 }
