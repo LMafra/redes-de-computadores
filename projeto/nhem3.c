@@ -149,7 +149,7 @@ config *recuperar_parametros(int counter, char **params) {
 
     ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
                                                  : inet_addr(params[1]); // FIXME: e se não for
-    // um ip válido ?!
+                                                                        // um ip válido ?!
     return ptr;
 }
 
