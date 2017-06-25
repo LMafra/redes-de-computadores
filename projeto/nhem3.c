@@ -50,7 +50,7 @@ void run(config *c) {
 }
 
 void runAsServer(config *c) {
-    int clientFD;
+    int clientFD = 0;
     char mensagem[BUFFER_SIZE];
     struct sockaddr_in client;
     socklen_t socketSize = sizeof(client);
@@ -62,23 +62,32 @@ void runAsServer(config *c) {
         printf(SCS_BIND);
     }
 
-    if (listen(c->socketFD, QUEUE_SIZE) == -1) {
-        printf(ERR_LISTEN);
-        return;
-    } else {
-        printf(SCS_LISTEN);
+    if (c->is_TCP) {
+
+        if (listen(c->socketFD, QUEUE_SIZE) == -1) {
+            printf(ERR_LISTEN);
+            return;
+        } else {
+            printf(SCS_LISTEN);
+        }
+
+        clientFD = accept(c->socketFD, (struct sockaddr *) &client, &socketSize);
+
+        printf("Servidor recebeu uma conexão de %s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+
+        write(clientFD, MSG_SERVER_DEFAULT, sizeof(MSG_SERVER_DEFAULT));
     }
-
-    clientFD = accept(c->socketFD, (struct sockaddr *) &client, &socketSize);
-
-    printf("Servidor recebeu uma conexão de %s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
-
-    write(clientFD, MSG_SERVER_DEFAULT, sizeof(MSG_SERVER_DEFAULT));
 
     while (1) {
         bzero(mensagem, BUFFER_SIZE);
-        read(clientFD, mensagem, BUFFER_SIZE);
-        mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
+
+        if (c->is_TCP) {
+            read(clientFD, mensagem, BUFFER_SIZE);
+            mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
+        } else {
+            recvfrom(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &client, &socketSize);
+            mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
+        }
 
         printf("[%s:%d] : %s\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port), mensagem);
 
@@ -88,8 +97,13 @@ void runAsServer(config *c) {
         }
     }
 
+    if (c->is_TCP) {
+        close(clientFD);
+    } else {
+        // avisar para o cliente que o servidor vai parar.
+        write(c->socketFD, KEYWORD_STOP_SERVER, sizeof(KEYWORD_STOP_SERVER));
+    }
 
-    close(clientFD);
 }
 
 void runAsClient(config *c) {
@@ -129,8 +143,6 @@ config *recuperar_parametros(int counter, char **params) {
     if (counter > 2) {
         for (int i = 2; i < counter; i++) {
 
-            // Foi passado um argumento númerico.
-            // Possivelmente é o número da porta.
             if ((portNumber = atoi(params[i])) > 0) {
 
                 if (portNumber < 1024 || portNumber > 65535) {
@@ -149,7 +161,7 @@ config *recuperar_parametros(int counter, char **params) {
 
     ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
                                                  : inet_addr(params[1]); // FIXME: e se não for
-                                                                        // um ip válido ?!
+    // um ip válido ?!
     return ptr;
 }
 
