@@ -107,22 +107,47 @@ void runAsServer(config *c) {
 }
 
 void runAsClient(config *c) {
-    // TODO: Mudar para aceitar tanto TCP quanto UDP.
-    int clientFD, clientSock;
+    int client = 0;
     char mensagem[BUFFER_SIZE];
     struct sockaddr_in server;
     socklen_t socketSize = sizeof(c->socket);
 
-    clientFD = connect(c->socketFD, (struct sockaddr *) &c->socket, socketSize);
+    if (c->is_TCP) {
 
-    printf("Olá, você está conectado \n");
+        client = connect(c->socketFD, (struct sockaddr *) &c->socket, socketSize);
 
-    read(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+        printf("Olá, você está conectado \n");
 
-    printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
+        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
 
+        printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
 
-    close(clientFD);
+        while (1) {
+            bzero(mensagem, BUFFER_SIZE);
+
+            if (c->is_TCP) {
+                write(client, mensagem, BUFFER_SIZE);
+                mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
+            } else {
+                sendto(c->socket, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, &socketSize);
+                mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
+            }
+
+            printf("[%s:%d] : %s\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port), mensagem);
+
+            if (strcmp(KEYWORD_STOP_SERVER, mensagem) == 0) {
+                printf("Conexão encerrada por %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
+                break;
+            }
+        }
+
+        if (c->is_TCP) {
+            close(client);
+        } else {
+            // avisar para o cliente que o servidor vai parar.
+            read(c->socket, KEYWORD_STOP_SERVER, sizeof(KEYWORD_STOP_SERVER));
+        }
+    }
 }
 
 config *recuperar_parametros(int counter, char **params) {
