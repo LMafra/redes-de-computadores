@@ -110,50 +110,62 @@ void runAsClient(config *c) {
     int client = 0;
     char mensagem[BUFFER_SIZE];
     struct sockaddr_in server;
-    socklen_t socketSize = sizeof(c->socketFD);
+    socklen_t socketSize = sizeof(c->socket);
 
     if (c->is_TCP) {
 
-        client = connect(c->socketFD, (struct sockaddr *) &c->socket, socketSize);
+        client = connect(c->socketFD, (struct sockaddr *) &client, socketSize);
 
-        printf("Olá, você está conectado \n");
-
-
-        //Conseguir pegar a mensagem aqui 
-        //write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+        if (connect(c->socketFD, (struct sockaddr *) &c->socket, socketSize)  == -1) {
+            printf("%s código: %d\n", ERR_CONNECT, errno);
+            return;
+        } else {
+            printf(SCS_CONNECT);
+        }
         
-
-
+        //Mostrar que conectou 
+        
         printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
-
-
-        // Preciso verificar porque o looping não está funcionando
         
-        /*while (1) {
-            bzero(mensagem, BUFFER_SIZE);
+        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
 
-            if (c->is_TCP) {
-                write(client, mensagem, BUFFER_SIZE);
-                mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
-            } else {
-                sendto(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, socketSize);
-                mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
-            }
+    }else{
+        if (bind(c->socketFD, (struct sockaddr *) &c->socket, sizeof(c->socket)) == -1) {
+            printf("%s código: %d\n", ERR_BIND, errno);
+            return;
+        } else {
+            printf(SCS_BIND);
+        }
+        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+        printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
+    }
 
-            printf("[%s:%d] : %s\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port), mensagem);
-
-            if (strcmp(KEYWORD_STOP_SERVER, mensagem) == 0) {
-                printf("Conexão encerrada por %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
-                break;
-            }
-        }*/
+    // Preciso verificar porque o looping não está funcionando
+    
+    /*while (1) {
+        bzero(mensagem, BUFFER_SIZE);
 
         if (c->is_TCP) {
-            close(client);
+            write(client, mensagem, BUFFER_SIZE);
+            mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
         } else {
-            // avisar para o cliente que o servidor vai parar.
-            read(c->socketFD, KEYWORD_STOP_SERVER, sizeof(KEYWORD_STOP_SERVER));
+            sendto(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, socketSize);
+            mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
         }
+
+        printf("[%s:%d] : %s\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port), mensagem);
+
+        if (strcmp(KEYWORD_STOP_SERVER, mensagem) == 0) {
+            printf("Conexão encerrada por %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
+            break;
+        }
+    }*/
+
+    if (c->is_TCP) {
+        close(client);
+    } else {
+        // avisar para o cliente que o servidor vai parar.
+        read(c->socketFD, KEYWORD_STOP_SERVER, sizeof(KEYWORD_STOP_SERVER));
     }
 }
 

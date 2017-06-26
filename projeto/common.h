@@ -38,9 +38,10 @@
 /*
  * ---- Cliente ----
  */
+#define ERR_CONNECT           "ERRO: Não foi possível enviar conexões no socket!\n"
+#define SCS_CONNECT            "-> Pedindo para ser conectado...\n"
 
-#define MSG_CLIENT_DEFAULT "Opa, tudo bom?!\n"
-
+#define MSG_CLIENT_DEFAULT 	  "Olá, você está conectado!\n"
 /*
  * Trata-se de uma estrutura que engloba a estrutura do socket e também
  * algumas flags.
