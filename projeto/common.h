@@ -39,7 +39,7 @@
  * ---- Cliente ----
  */
 
-#define MSG_CLIENT_DEFAULT "Olá servidor!\n"
+#define MSG_CLIENT_DEFAULT "Opa, tudo bom?!\n"
 
 /*
  * Trata-se de uma estrutura que engloba a estrutura do socket e também

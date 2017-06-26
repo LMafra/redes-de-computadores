@@ -110,7 +110,7 @@ void runAsClient(config *c) {
     int client = 0;
     char mensagem[BUFFER_SIZE];
     struct sockaddr_in server;
-    socklen_t socketSize = sizeof(c->socket);
+    socklen_t socketSize = sizeof(c->socketFD);
 
     if (c->is_TCP) {
 
@@ -118,11 +118,18 @@ void runAsClient(config *c) {
 
         printf("Olá, você está conectado \n");
 
-        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+
+        //Conseguir pegar a mensagem aqui 
+        //write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+        
+
 
         printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
 
-        while (1) {
+
+        // Preciso verificar porque o looping não está funcionando
+        
+        /*while (1) {
             bzero(mensagem, BUFFER_SIZE);
 
             if (c->is_TCP) {
@@ -139,7 +146,7 @@ void runAsClient(config *c) {
                 printf("Conexão encerrada por %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
                 break;
             }
-        }
+        }*/
 
         if (c->is_TCP) {
             close(client);
