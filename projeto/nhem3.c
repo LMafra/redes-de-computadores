@@ -129,7 +129,7 @@ void runAsClient(config *c) {
                 write(client, mensagem, BUFFER_SIZE);
                 mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
             } else {
-                sendto(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, &socketSize);
+                sendto(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, socketSize);
                 mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
             }
 
