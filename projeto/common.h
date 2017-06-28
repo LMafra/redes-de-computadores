@@ -34,24 +34,27 @@
 #define SCS_LISTEN            "-> Esperando conexões...\n"
 #define ERR_LISTEN            "ERRO: Não foi possível escutar conexões no socket!\n"
 #define KEYWORD_STOP_SERVER   "quit"
+#define WARM_CLIENT_LEFT      "-> Opa... Parece que o cliente saiu e não avisou... " \
+                              "Encerrando servidor."
 
 /*
  * ---- Cliente ----
  */
-#define ERR_CONNECT           "ERRO: Não foi possível enviar conexões no socket!\n"
-#define SCS_CONNECT            "-> Pedindo para ser conectado...\n"
+#define ERR_CONNECT           "ERRO: Não foi possível se conectar!\n"
+#define SCS_CONNECT           "-> Cliente se conectou...\n"
 
-#define MSG_CLIENT_DEFAULT 	  "Olá, você está conectado!\n"
+#define MSG_CLIENT_DEFAULT    "Olá! Desejo conversar\n"
 /*
  * Trata-se de uma estrutura que engloba a estrutura do socket e também
  * algumas flags.
  *
 */
 typedef struct {
-    int socketFD;               /* File descriptor do socket de conexão     */
-    bool is_Server;             /* Flag que define se é servidor            */
-    bool is_TCP;                /* Flag que define se o protocolo será TCP  */
-    struct sockaddr_in socket;  /* Estrutura do socket da conexão           */
+    int socketFD;               /* File descriptor do socket de conexão              */
+    char mensagem[BUFFER_SIZE]; /* Buffer que será utilizado para troca de mensagens */
+    bool is_Server;             /* Flag que define se é servidor                     */
+    bool is_TCP;                /* Flag que define se o protocolo será TCP           */
+    struct sockaddr_in socket;  /* Estrutura do socket da conexão                    */
 
 } config;
 

@@ -50,6 +50,7 @@ void run(config *c) {
 }
 
 void runAsServer(config *c) {
+    ssize_t bytesRead;
     int clientFD = 0;
     char mensagem[BUFFER_SIZE];
     struct sockaddr_in client;
@@ -78,15 +79,21 @@ void runAsServer(config *c) {
         write(clientFD, MSG_SERVER_DEFAULT, sizeof(MSG_SERVER_DEFAULT));
     }
 
+    bzero(mensagem, BUFFER_SIZE);
+
     while (1) {
-        bzero(mensagem, BUFFER_SIZE);
 
         if (c->is_TCP) {
-            read(clientFD, mensagem, BUFFER_SIZE);
+            bytesRead = read(clientFD, mensagem, BUFFER_SIZE);
             mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
         } else {
-            recvfrom(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &client, &socketSize);
+            bytesRead = recvfrom(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &client, &socketSize);
             mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
+        }
+
+        if (bytesRead == 0) {
+            printf(WARM_CLIENT_LEFT);
+            return;
         }
 
         printf("[%s:%d] : %s\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port), mensagem);
@@ -107,66 +114,21 @@ void runAsServer(config *c) {
 }
 
 void runAsClient(config *c) {
-    int client = 0;
-    char mensagem[BUFFER_SIZE];
-    struct sockaddr_in server;
-    socklen_t socketSize = sizeof(c->socket);
-
-    if (c->is_TCP) {
-
-        client = connect(c->socketFD, (struct sockaddr *) &client, socketSize);
-
-        if (connect(c->socketFD, (struct sockaddr *) &c->socket, socketSize)  == -1) {
-            printf("%s código: %d\n", ERR_CONNECT, errno);
-            return;
-        } else {
-            printf(SCS_CONNECT);
-        }
-        
-        //Mostrar que conectou 
-        
-        printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
-        
-        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
-
-    }else{
-        if (bind(c->socketFD, (struct sockaddr *) &c->socket, sizeof(c->socket)) == -1) {
-            printf("%s código: %d\n", ERR_BIND, errno);
-            return;
-        } else {
-            printf(SCS_BIND);
-        }
-        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
-        printf("Conexão recebida: %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
-    }
-
-    // Preciso verificar porque o looping não está funcionando
-    
-    /*while (1) {
-        bzero(mensagem, BUFFER_SIZE);
-
-        if (c->is_TCP) {
-            write(client, mensagem, BUFFER_SIZE);
-            mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
-        } else {
-            sendto(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, socketSize);
-            mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
-        }
-
-        printf("[%s:%d] : %s\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port), mensagem);
-
-        if (strcmp(KEYWORD_STOP_SERVER, mensagem) == 0) {
-            printf("Conexão encerrada por %s:%d\n", inet_ntoa(server.sin_addr), ntohs(server.sin_port));
-            break;
-        }
-    }*/
-
-    if (c->is_TCP) {
-        close(client);
+    if (connect(c->socketFD, (struct sockaddr *) &c->socket, sizeof(c->socket)) == -1) {
+        printf("%s codigo: %dz\n", ERR_CONNECT, errno);
+        return;
     } else {
-        // avisar para o cliente que o servidor vai parar.
-        read(c->socketFD, KEYWORD_STOP_SERVER, sizeof(KEYWORD_STOP_SERVER));
+        printf(SCS_CONNECT);
     }
+
+    read(c->socketFD, c->mensagem, BUFFER_SIZE);
+    printf("%s", c->mensagem);
+    write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+
+    while(1){
+
+    }
+
 }
 
 config *recuperar_parametros(int counter, char **params) {
@@ -178,6 +140,8 @@ config *recuperar_parametros(int counter, char **params) {
     if (ptr == NULL) {
         return ptr;
     }
+
+    bzero(ptr->mensagem, BUFFER_SIZE);
 
     ptr->is_Server = strcmp("-S", params[1]) == 0 ? true : false;
     ptr->socket.sin_family = AF_INET;
@@ -203,9 +167,10 @@ config *recuperar_parametros(int counter, char **params) {
         }
     }
 
-    ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
-                                                 : inet_addr(params[1]); // FIXME: e se não for
-    // um ip válido ?!
+    // TODO: Quando não for um IP válido ?
+    ptr->socket.sin_addr.s_addr = ptr->is_Server ? htonl(INADDR_ANY)
+                                                 : inet_addr(params[1]);
+
     return ptr;
 }
 
