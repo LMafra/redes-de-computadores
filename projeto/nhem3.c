@@ -100,10 +100,11 @@ void runAsServer(config *c) {
         }
     }
 
-    write(c->socketFD, MSG_CLOSE_CONNECT, sizeof(MSG_CLOSE_CONNECT));
-
     if (c->is_TCP) {
+        write(clientFD, MSG_CLOSE_CONNECT, sizeof(MSG_CLOSE_CONNECT));
         close(clientFD);
+    } else {
+        write(c->socketFD, MSG_CLOSE_CONNECT, sizeof(MSG_CLOSE_CONNECT));
     }
 
 }
