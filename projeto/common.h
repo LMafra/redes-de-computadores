@@ -14,8 +14,9 @@
  * ================== Constantes ==================
  */
 
-#define BUFFER_SIZE 1024
-#define QUEUE_SIZE  3
+#define BUFFER_SIZE     1024
+#define QUEUE_SIZE      3
+#define KEYWORD_STOP    "quit"
 
 #define SCS_SOCKET      "-> Socket foi criado...\n"
 #define SCS_BIND        "-> Foi dado bind no socket...\n"
@@ -30,10 +31,10 @@
  */
 
 #define MSG_SERVER_DEFAULT    "SERVIDOR: Digite 'quit' para encerrar a conexão!\n"
+#define MSG_CLOSE_CONNECT     "SERVIDOR: Recebi sua mensagem! Estou finalizando a conexão..."
 
 #define SCS_LISTEN            "-> Esperando conexões...\n"
 #define ERR_LISTEN            "ERRO: Não foi possível escutar conexões no socket!\n"
-#define KEYWORD_STOP_SERVER   "quit"
 #define WARM_CLIENT_LEFT      "-> Opa... Parece que o cliente saiu e não avisou... " \
                               "Encerrando servidor."
 
@@ -43,7 +44,7 @@
 #define ERR_CONNECT           "ERRO: Não foi possível se conectar!\n"
 #define SCS_CONNECT           "-> Cliente se conectou...\n"
 
-#define MSG_CLIENT_DEFAULT    "Olá! Desejo conversar\n"
+#define MSG_CLIENT_DEFAULT    "Olá! Desejo conversar."
 /*
  * Trata-se de uma estrutura que engloba a estrutura do socket e também
  * algumas flags.

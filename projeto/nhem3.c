@@ -85,11 +85,10 @@ void runAsServer(config *c) {
 
         if (c->is_TCP) {
             bytesRead = read(clientFD, mensagem, BUFFER_SIZE);
-            mensagem[strlen(mensagem) - 2] = '\0';  // remover \r \n da string
         } else {
             bytesRead = recvfrom(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &client, &socketSize);
-            mensagem[strlen(mensagem) - 1] = '\0';  // remover \n da string
         }
+
 
         if (bytesRead == 0) {
             printf(WARM_CLIENT_LEFT);
@@ -98,7 +97,8 @@ void runAsServer(config *c) {
 
         printf("[%s:%d] : %s\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port), mensagem);
 
-        if (strcmp(KEYWORD_STOP_SERVER, mensagem) == 0) {
+        if (strcmp(KEYWORD_STOP, mensagem) == 0) {
+            write(clientFD, MSG_CLOSE_CONNECT, sizeof(MSG_CLOSE_CONNECT));
             printf("Conexão encerrada por %s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
             break;
         }
@@ -108,7 +108,7 @@ void runAsServer(config *c) {
         close(clientFD);
     } else {
         // avisar para o cliente que o servidor vai parar.
-        write(c->socketFD, KEYWORD_STOP_SERVER, sizeof(KEYWORD_STOP_SERVER));
+        write(c->socketFD, KEYWORD_STOP, sizeof(KEYWORD_STOP));
     }
 
 }
@@ -125,11 +125,26 @@ void runAsClient(config *c) {
     printf("%s", c->mensagem);
     write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
 
-    while(1){
+    while (1) {
+        printf("Digite uma mensagem: ");
+        fgets(c->mensagem, BUFFER_SIZE, stdin);
+
+        // removendo \r da string.
+        c->mensagem[strlen(c->mensagem) - 1] = '\0';
+
+        // enviando mensagem para o servidor
+        write(c->socketFD, c->mensagem, BUFFER_SIZE);
+
+        if (strcmp(KEYWORD_STOP, c->mensagem) == 0) {
+            read(c->socketFD, c->mensagem, BUFFER_SIZE);
+            printf("%s\n", c->mensagem);
+            printf("Encerrando cliente...\n");
+            break;
+        }
 
     }
-
 }
+
 
 config *recuperar_parametros(int counter, char **params) {
 
