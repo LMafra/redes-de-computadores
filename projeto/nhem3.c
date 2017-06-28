@@ -52,7 +52,6 @@ void run(config *c) {
 void runAsServer(config *c) {
     ssize_t bytesRead;
     int clientFD = 0;
-    char mensagem[BUFFER_SIZE];
     struct sockaddr_in client;
     socklen_t socketSize = sizeof(client);
 
@@ -79,14 +78,12 @@ void runAsServer(config *c) {
         write(clientFD, MSG_SERVER_DEFAULT, sizeof(MSG_SERVER_DEFAULT));
     }
 
-    bzero(mensagem, BUFFER_SIZE);
-
     while (1) {
 
         if (c->is_TCP) {
-            bytesRead = read(clientFD, mensagem, BUFFER_SIZE);
+            bytesRead = read(clientFD, c->mensagem, BUFFER_SIZE);
         } else {
-            bytesRead = recvfrom(c->socketFD, mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &client, &socketSize);
+            bytesRead = recvfrom(c->socketFD, c->mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &client, &socketSize);
         }
 
 
@@ -95,20 +92,18 @@ void runAsServer(config *c) {
             return;
         }
 
-        printf("[%s:%d] : %s\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port), mensagem);
+        printf("[%s:%d] : %s\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port), c->mensagem);
 
-        if (strcmp(KEYWORD_STOP, mensagem) == 0) {
-            write(clientFD, MSG_CLOSE_CONNECT, sizeof(MSG_CLOSE_CONNECT));
+        if (strcmp(KEYWORD_STOP, c->mensagem) == 0) {
             printf("Conexão encerrada por %s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
             break;
         }
     }
 
+    write(c->socketFD, MSG_CLOSE_CONNECT, sizeof(MSG_CLOSE_CONNECT));
+
     if (c->is_TCP) {
         close(clientFD);
-    } else {
-        // avisar para o cliente que o servidor vai parar.
-        write(c->socketFD, KEYWORD_STOP, sizeof(KEYWORD_STOP));
     }
 
 }
@@ -121,9 +116,12 @@ void runAsClient(config *c) {
         printf(SCS_CONNECT);
     }
 
-    read(c->socketFD, c->mensagem, BUFFER_SIZE);
-    printf("%s", c->mensagem);
-    write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+    // Mensagem inicial do servidor.
+    if (c->is_TCP) {
+        read(c->socketFD, c->mensagem, BUFFER_SIZE);
+        printf("%s", c->mensagem);
+        write(c->socketFD, MSG_CLIENT_DEFAULT, sizeof(MSG_CLIENT_DEFAULT));
+    }
 
     while (1) {
         printf("Digite uma mensagem: ");
@@ -132,12 +130,19 @@ void runAsClient(config *c) {
         // removendo \r da string.
         c->mensagem[strlen(c->mensagem) - 1] = '\0';
 
-        // enviando mensagem para o servidor
-        write(c->socketFD, c->mensagem, BUFFER_SIZE);
+        if (c->is_TCP) {
+            // enviando mensagem para o servidor
+            write(c->socketFD, c->mensagem, BUFFER_SIZE);
+        } else {
+            sendto(c->socketFD, c->mensagem, BUFFER_SIZE, 0, (struct sockaddr *) &c->socket, sizeof(c->socket));
+        }
 
         if (strcmp(KEYWORD_STOP, c->mensagem) == 0) {
-            read(c->socketFD, c->mensagem, BUFFER_SIZE);
-            printf("%s\n", c->mensagem);
+            if (c->is_TCP) {
+                read(c->socketFD, c->mensagem, BUFFER_SIZE);
+                printf("%s\n", c->mensagem);
+            }
+
             printf("Encerrando cliente...\n");
             break;
         }
@@ -183,7 +188,7 @@ config *recuperar_parametros(int counter, char **params) {
     }
 
     // TODO: Quando não for um IP válido ?
-    ptr->socket.sin_addr.s_addr = ptr->is_Server ? htonl(INADDR_ANY)
+    ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
                                                  : inet_addr(params[1]);
 
     return ptr;
