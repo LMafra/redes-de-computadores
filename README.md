@@ -12,7 +12,6 @@ A implementação provê um serviço básico de chat através da linha de comand
 
 O programa é escrito na linguagem C, funcionando sobre o Sistema Operacional Linux.
 
-
 ## Funcionamento
 
 Para rodar o servidor, você deverá apresentar as seguintes opções:
@@ -47,11 +46,19 @@ Usar o protocolo TCP. Se não estiver presente, usar o protocolo UDP (default).
 
 ## Decisões de Projeto e Soluções Utilizadas
 
-* Decidimos usar *write* e *read* ao invés de *send* *recv* 
+* Para criar uma abstração maior foi criada uma estrutura chamada *config* que encapsula o socket e algumas flags de configuração como: se a conexão é TCP e se o programa deve rodar como servidor. Com essa solução, foi possível centralizar as informações em comum entre o servidor e o cliente, assim deixando um código mais limpo.
 
+## Compilação do Cdigo
+
+* Para a compilação do código é necessário estar no diretório *projeto* e rodar o seguinte comando:
+
+```c
+   gcc nhem3.c -o nhem3
+```
 
 ## Limitações e Bugs
 
 * O servidor não utiliza multithreading. Portanto, só consegue receber requisições de um usuário por vez.
-* Ao sair de maneira drástica no protocolo UDP, o servidor continua rodando, esperando outra mensagem.
+* Quando o cliente sai de maneira drástica no protocolo UDP sem avisar ao servidor, o servidor continua rodando pois não reconheceu que o cliente não se encontra mais conectado. Enquanto que no TCP essa detecção é feita.
+* Quando o cliente sai e avisa ao servidor no protocolo UDP não há garantia que a mensagem vá ser entregue. Portanto, pode entrar no mesmo caso do bug anterior.
 * Ao enviar uma mensagem com mais de 1024 caracteres, o servidor quebra a mensagem em 1024 caracteres
