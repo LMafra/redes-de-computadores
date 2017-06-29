@@ -3,8 +3,8 @@
 # Redes de Computadores - 1/2017
 
 ## Membros
-* Éden de Lucas Castelar Vale Medeiros
-* Lucas Mafra Chagas
+* Éden de Lucas Castelar Vale Medeiros - 12/0151898
+* Lucas Mafra Chagas - 12/0126443
 
 ## Introdução
 
@@ -15,7 +15,7 @@ O programa é escrito na linguagem C, funcionando sobre o Sistema Operacional Li
 
 ## Funcionamento
 
-Para rodar o servidor, poderá ter as seguintes opções:
+Para rodar o servidor, você deverá apresentar as seguintes opções:
 
 ```c
    % nhem3 -S [port] [-t]
@@ -47,6 +47,11 @@ Usar o protocolo TCP. Se não estiver presente, usar o protocolo UDP (default).
 
 ## Decisões de Projeto e Soluções Utilizadas
 
+* Decidimos usar *write* e *read* ao invés de *send* *recv* 
+
+
 ## Limitações e Bugs
 
 * O servidor não utiliza multithreading. Portanto, só consegue receber requisições de um usuário por vez.
+* Ao sair de maneira drástica no protocolo UDP, o servidor continua rodando, esperando outra mensagem.
+* Ao enviar uma mensagem com mais de 1024 caracteres, o servidor quebra a mensagem em 1024 caracteres
