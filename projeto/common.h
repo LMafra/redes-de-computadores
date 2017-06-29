@@ -8,6 +8,12 @@
 /*
  * Header que define os protótipos de funções e estruturas que serão utilizadas
  * por todo o projeto.
+ *
+ * Trabalho de Redes: 01/2017
+ *
+ * Éden de Lucas Castelar Vale Medeiros - 12/0151898
+ * Lucas Mafra Chagas - 12/0126443
+ *
  */
 
 /*

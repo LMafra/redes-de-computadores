@@ -6,6 +6,14 @@
 #include <unistd.h>
 #include <errno.h>
 
+/*
+ * Trabalho de Redes: 01/2017
+ *
+ * Éden de Lucas Castelar Vale Medeiros - 12/0151898
+ * Lucas Mafra Chagas - 12/0126443
+ *
+*/
+
 int main(int argc, char **argv) {
     config *c = recuperar_parametros(argc, argv);
 
@@ -188,7 +196,6 @@ config *recuperar_parametros(int counter, char **params) {
         }
     }
 
-    // TODO: Quando não for um IP válido ?
     ptr->socket.sin_addr.s_addr = ptr->is_Server ? INADDR_ANY
                                                  : inet_addr(params[1]);
 
